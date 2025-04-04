@@ -105,7 +105,7 @@ class Elecciones(models.Model):
    fecha = models.DateField("Fecha", default=date.today)
 
    def __str__(self):
-      return str(self.id) + "-" + self.date
+      return str(self.nombre) + "-" + str(self.fecha)
 ```
 ```python
 from django.db import models
@@ -115,7 +115,7 @@ class Partidos(models.Model):
    siglas = models.CharField("Nombre", max_length=50)
 
    def __str__(self):
-      return str(self.id) + "-" + self.nombre + "-" + self.siglas
+      return self.nombre + "-" + self.siglas
 ```
 ```python
 from django.db import models
@@ -128,7 +128,7 @@ class Escanos(models.Model):
    partido = models.ForeignKey(Partidos, on_delete=models.CASCADE)
 
    def __str__(self):
-      return str(self.id) + "-" + self.name
+      return str(self.escanos)
 ```
 ```python
 from django.db import models
@@ -141,7 +141,7 @@ class Votos(models.Model):
    partido = models.ForeignKey(Partidos, on_delete=models.CASCADE)
 
    def __str__(self):
-      return str(self.id) + "-" + self.name
+      return str(self.votos) 
 ```
 
 
