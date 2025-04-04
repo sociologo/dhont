@@ -58,19 +58,39 @@ y se crea la carpeta contenedora `dhont` en la carpeta `mis_proyectos`
 
 8 Le indicamos a django que ejecute desde el entorno de configuración local.py:
 
+9 Verificamos:
+
 (entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
 
+9 Vamos al nivel de applications y creamos 4 nuevos proyectos:
 
+(entorno_4) C:\mis_proyectos\dhont>cd applications
+(entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp partidos
+(entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp escanos
+(entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp elecciones
+(entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp votos
 
+10  Ahora necesitamos instalar nuestras aplicaciones en el archivo base.py:
 
+INSTALLED_APPS = [
+   'django.contrib.admin',
+   'django.contrib.auth',
+   'django.contrib.contenttypes',
+   'django.contrib.sessions',
+   'django.contrib.messages',
+   'django.contrib.staticfiles',
 
+   'applications.partidos',
+   'applications.escanos',
+   'applications.elecciones',
+   'applications.votos'
+]
 
+11 En cada uno de los archivos apps.py de las aplicaciones anteponemos el prefijo `applications.`:
 
+Verificamos:
 
-
-
-
-
+(entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
 
 
 
