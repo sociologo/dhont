@@ -60,18 +60,23 @@ y se crea la carpeta contenedora `dhont` en la carpeta `mis_proyectos`
 
 9 Verificamos:
 
+```bash
 (entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
+```
 
-9 Vamos al nivel de applications y creamos 4 nuevos proyectos:
+10 Vamos al nivel de applications y creamos 4 nuevos proyectos:
 
+```bash
 (entorno_4) C:\mis_proyectos\dhont>cd applications
 (entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp partidos
 (entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp escanos
 (entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp elecciones
 (entorno_4) C:\mis_proyectos\dhont\applications> django-admin startapp votos
+```
 
-10  Ahora necesitamos instalar nuestras aplicaciones en el archivo base.py:
+11  Ahora necesitamos instalar nuestras aplicaciones en el archivo base.py:
 
+```
 INSTALLED_APPS = [
    'django.contrib.admin',
    'django.contrib.auth',
@@ -85,16 +90,17 @@ INSTALLED_APPS = [
    'applications.elecciones',
    'applications.votos'
 ]
+```
 
-11 En cada uno de los archivos apps.py de las aplicaciones anteponemos el prefijo `applications.`:
+12 En cada uno de los archivos apps.py de las aplicaciones anteponemos el prefijo `applications.`:
 
 Verificamos:
 
+```
 (entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
+```
 
-12 Implementando la base de datos
-
-
+13 Implementando la base de datos
 
 ```python
 from django.db import models
@@ -107,6 +113,7 @@ class Elecciones(models.Model):
    def __str__(self):
       return str(self.nombre) + "-" + str(self.fecha)
 ```
+
 ```python
 from django.db import models
 
@@ -117,6 +124,7 @@ class Partidos(models.Model):
    def __str__(self):
       return self.nombre + "-" + self.siglas
 ```
+
 ```python
 from django.db import models
 from applications.elecciones.models import Elecciones
@@ -130,6 +138,7 @@ class Escanos(models.Model):
    def __str__(self):
       return str(self.escanos)
 ```
+
 ```python
 from django.db import models
 from applications.elecciones.models import Elecciones
@@ -143,8 +152,6 @@ class Votos(models.Model):
    def __str__(self):
       return str(self.votos) 
 ```
-
-
 
 ```bash
 (entorno_4) C:\mis_proyectos\dhont>python manage.py makemigrations
