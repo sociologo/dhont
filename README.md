@@ -22,10 +22,10 @@ C:\mis_entornos\entorno_4\Scripts> activate
 C:\>cd mis_entornos/entorno_4/Scripts
 C:\mis_entornos\entorno_4\Scripts> activate
 (entorno_4) C:\mis_entornos\entorno_4\Scripts> pip install django
-python.exe -m pip install --upgrade pip
-pip install django-ckeditor
-pip install psycopg2-binary
-pip install Pillow
+(entorno_4) C:\mis_entornos\entorno_4\Scripts> python.exe -m pip install --upgrade pip
+(entorno_4) C:\mis_entornos\entorno_4\Scripts> pip install django-ckeditor
+(entorno_4) C:\mis_entornos\entorno_4\Scripts> pip install psycopg2-binary
+(entorno_4) C:\mis_entornos\entorno_4\Scripts> pip install Pillow
 ```
 
 4 Construimos la aplicacion:
