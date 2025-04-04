@@ -28,9 +28,11 @@ C:\mis_entornos\entorno_4\Scripts> activate
 (entorno_4) C:\mis_entornos\entorno_4\Scripts> pip install Pillow
 ```
 
-4 Construimos la aplicacion:
+4 Construímos la aplicación:
 
 ```
+C:\> cd mis_entornos/entorno_4/Scripts
+C:\mis_entornos\entorno_4\Scripts> activate
 (entorno_4) C:\mis_entornos\entorno_4\Scripts> cd \mis_proyectos
 (entorno_4) C:\mis_proyectos> django-admin startproject dhont
 ```
@@ -40,14 +42,19 @@ y se crea la carpeta contenedora `dhont` en la carpeta `mis_proyectos`
 5 Verificamos:
 
 ```
-(entorno_4) C:\mis_proyectos>  cd \mis_proyectos\dhont
-(entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
+(entorno_4) C:\mis_proyectos>  cd dhont
+(entorno_4) C:\mis_proyectos\dhont>python manage.py runserver
 ```
 
 6 Creamos la carpeta `applications` a la altura de manage.py
 
+![image](https://github.com/user-attachments/assets/6845ddc3-aae6-4593-a33e-0834d1d7665a)
 
+![image](https://github.com/user-attachments/assets/04977199-7a94-4335-b3e0-07ad73bfd827)
 
+7 Creamos la carpeta settings con su cuatro archivos interiores y borramos el settings original
+
+![image](https://github.com/user-attachments/assets/a6303270-a68e-470a-9cfa-c4cbf7cdc77d)
 
 
 
