@@ -191,6 +191,40 @@ Running migrations:
 (entorno_4) C:\mis_proyectos\dhont>
 ```bash
 
+Registramos en el admin.py de las apps las tablas recién construídas.
+
+```
+from django.contrib import admin # type: ignore
+from .models import Elecciones
+admin.site.register(Elecciones)
+```
+```
+from django.contrib import admin # type: ignore
+from .models import Partidos
+admin.site.register(Partidos)
+```
+```
+from django.contrib import admin # type: ignore
+from .models import Escanos
+admin.site.register(Escanos)
+```
+```
+from django.contrib import admin # type: ignore
+from .models import Votos
+admin.site.register(Votos)
+```
+
+ Creamos un superuser:
+
+(entorno_3) C:\mis_proyectos\emp3\empleado>python manage.py createsuperuser
+Username (leave blank to use 'chris'):
+Email address: tarredwall@gmail.com
+Password:
+Password (again):
+Superuser created successfully.
+
+(entorno_3) C:\mis_proyectos\emp3\empleado>
+La clave es: 123456
 
 
 
