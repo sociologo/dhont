@@ -232,11 +232,117 @@ La clave es: 123456
 
 
 
+Ahora conectamos Django a nuestra base de datos PostgreSQL:
+
+
+Creamos una base de datos:
+
+```
+Server [localhost]:
+Database [postgres]:
+Port [5432]:
+Username [postgres]:
+Contraseña para usuario postgres:
+
+psql (16.4)
+ADVERTENCIA: El código de página de la consola (850) difiere del código
+            de página de Windows (1252).
+            Los caracteres de 8 bits pueden funcionar incorrectamente.
+            Vea la página de referencia de psql «Notes for Windows users»
+            para obtener más detalles.
+Digite «help» para obtener ayuda.
+
+postgres=#  CREATE DATABASE dhont101;
+CREATE DATABASE
+postgres=# \c dhont101;
+Ahora está conectado a la base de datos «dhont101» con el usuario «postgres».
+dhont101=# ALTER ROLE chris101 WITH PASSWORD 'nueva123456';
+ALTER ROLE
+dhont101=#
+```
+
+
+***
+1. Check Database User Privileges
+
+dhont101=# GRANT ALL PRIVILEGES ON SCHEMA public TO chris101;
+GRANT
+dhont101=# GRANT ALL PRIVILEGES ON DATABASE dhont101 TO chris101;
+GRANT
+dhont101=#
+***
 
 
 
 
+```
+from .base import *
 
+DEBUG = True
+
+ALLOWED_HOSTS = []
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'dhont101',
+        'USER': 'chris101',
+        'PASSWORD': 'nueva123456',
+        'HOST': 'localhost',
+        'PORT': '5432'
+    }
+}
+
+STATIC_URL = 'static/'
+```
+
+
+```
+(entorno_4) C:\mis_proyectos\dhont>python manage.py migrate
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, elecciones, escanos, partidos, sessions, votos
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying elecciones.0001_initial... OK
+  Applying partidos.0001_initial... OK
+  Applying escanos.0001_initial... OK
+  Applying sessions.0001_initial... OK
+  Applying votos.0001_initial... OK
+
+(entorno_4) C:\mis_proyectos\dhont>
+```
+
+Volvemos a crear un superuser:
+
+```python
+(entorno_4) C:\mis_proyectos\dhont> python manage.py createsuperuser
+Username (leave blank to use 'chris'):
+Email address: tarredwall@gmail.com
+Password:
+Password (again):
+This password is too short. It must contain at least 8 characters.
+This password is too common.
+This password is entirely numeric.
+Bypass password validation and create user anyway? [y/N]: y
+Superuser created successfully.
+```
+La clave es: 123456
 
 
 
