@@ -269,15 +269,16 @@ dhont101=#
 ```
 
 
-***
-1. Check Database User Privileges
+Check Database User Privileges
 
+```sql
 dhont101=# GRANT ALL PRIVILEGES ON SCHEMA public TO chris101;
 GRANT
 dhont101=# GRANT ALL PRIVILEGES ON DATABASE dhont101 TO chris101;
 GRANT
 dhont101=#
-***
+```
+
 
 
 
