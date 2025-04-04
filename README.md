@@ -56,9 +56,9 @@ y se crea la carpeta contenedora `dhont` en la carpeta `mis_proyectos`
 
 ![image](https://github.com/user-attachments/assets/a6303270-a68e-470a-9cfa-c4cbf7cdc77d)
 
+8 Le indicamos a django que ejecute desde el entorno de configuración local.py:
 
-
-
+(entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
 
 
 
