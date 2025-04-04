@@ -92,7 +92,7 @@ Verificamos:
 
 (entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
 
-
+12 Implementando la base de datos
 
 
 
