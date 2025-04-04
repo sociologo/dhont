@@ -10,7 +10,7 @@
 C:\>cd mis_entornos
 C:\mis_entornos> python -m venv entorno_4
 C:\mis_entornos> cd entorno_4/Scripts
-C:\mis_entornos\entorno_3\Scripts> activate
+C:\mis_entornos\entorno_4\Scripts> activate
 (entorno_4) C:\mis_entornos\entorno_4\Scripts>
 (entorno_4) C:\mis_entornos\entorno_4\Scripts>cd /
 (entorno_4) C:\>
