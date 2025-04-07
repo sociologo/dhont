@@ -375,28 +375,21 @@ tengo 4 partidos politicos en la base de datos y quiero que el usuario les asign
 
 **forms.py**
 
-ya tengo este modelo:
-
-```
-from django.db import models
-
-class Partidos(models.Model):
-   nombre = models.CharField("Nombre", max_length=50)
-   siglas = models.CharField("Nombre", max_length=50)
-
-   def __str__(self):
-      return self.nombre + "-" + self.siglas
-```
-
-
 
 ```
 from django import forms
-from .models import Partidos
+from applications.partidos.models import Partidos
+from applications.elecciones.models import Elecciones
 
 class VotosForm(forms.Form):
+    eleccion = forms.ModelChoiceField(
+        queryset=Elecciones.objects.all(),
+        label="Elección",
+        required=True
+    )
+
     def __init__(self, *args, **kwargs):
-        super(VotosForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         partidos = Partidos.objects.all()
         for partido in partidos:
             self.fields[f'votos_{partido.id}'] = forms.IntegerField(
@@ -404,29 +397,36 @@ class VotosForm(forms.Form):
                 min_value=0,
                 required=True
             )
-
-
 ```
 
 ```
 from django.shortcuts import render
 from django.http import HttpResponse
+from applications.partidos.models import Partidos
+from applications.elecciones.models import Elecciones
+from applications.votos.models import Votos
 from .forms import VotosForm
-from .models import Partidos
 
-def asignar_votos(request):
+def registrar_votos(request):
     if request.method == 'POST':
         form = VotosForm(request.POST)
         if form.is_valid():
-            resultados = []
+            eleccion = form.cleaned_data['eleccion']
             for field_name, value in form.cleaned_data.items():
-                partido_id = field_name.split('_')[1]
-                partido = Partidos.objects.get(id=partido_id)
-                resultados.append(f"{partido}: {value} votos")
-            return HttpResponse('<br>'.join(resultados))
+                if field_name.startswith('votos_'):
+                    partido_id = int(field_name.split('_')[1])
+                    partido = Partidos.objects.get(id=partido_id)
+                    # Guardar los votos en la base de datos
+                    Votos.objects.update_or_create(
+                        eleccion=eleccion,
+                        partido=partido,
+                        defaults={'votos': value}
+                    )
+            return HttpResponse("¡Votos registrados exitosamente!")
     else:
         form = VotosForm()
-    return render(request, 'asignar_votos.html', {'form': form})
+    return render(request, 'registrar_votos.html', {'form': form})
+
 
 
 ```
@@ -435,10 +435,10 @@ def asignar_votos(request):
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Asignar Votos</title>
+    <title>Registrar Votos</title>
 </head>
 <body>
-    <h1>Asignar Votos a los Partidos</h1>
+    <h1>Registrar Votos por Partido</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
@@ -446,6 +446,7 @@ def asignar_votos(request):
     </form>
 </body>
 </html>
+
 
 ```
 
