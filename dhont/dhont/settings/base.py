@@ -33,7 +33,7 @@ ROOT_URLCONF = 'dhont.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['C:/GitHub/dhont/dhont/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

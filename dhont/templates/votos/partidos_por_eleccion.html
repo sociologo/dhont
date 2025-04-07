@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Partidos por Elección</title>
+</head>
+<body>
+    <h1>Partidos en la Elección: {{ eleccion.nombre }} - {{ eleccion.fecha|date:"d/m/Y" }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar Votos</button>
+    </form>
+</body>
+</html>
+

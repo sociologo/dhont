@@ -1,5 +1,12 @@
 from django.contrib import admin
-
-# Register your models here.
 from .models import Votos
-admin.site.register(Votos)
+
+class VotosAdmin(admin.ModelAdmin):
+    list_display = (
+        'votos',
+        'eleccion',
+        'partido',
+    )
+
+# Registra el modelo usando la clase personalizada VotosAdmin
+admin.site.register(Votos, VotosAdmin)
