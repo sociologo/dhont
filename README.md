@@ -400,32 +400,32 @@ class VotosForm(forms.Form):
 ```
 
 ```
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.views.generic.edit import FormView
+from django.urls import reverse_lazy
 from applications.partidos.models import Partidos
 from applications.elecciones.models import Elecciones
 from applications.votos.models import Votos
 from .forms import VotosForm
 
-def registrar_votos(request):
-    if request.method == 'POST':
-        form = VotosForm(request.POST)
-        if form.is_valid():
-            eleccion = form.cleaned_data['eleccion']
-            for field_name, value in form.cleaned_data.items():
-                if field_name.startswith('votos_'):
-                    partido_id = int(field_name.split('_')[1])
-                    partido = Partidos.objects.get(id=partido_id)
-                    # Guardar los votos en la base de datos
-                    Votos.objects.update_or_create(
-                        eleccion=eleccion,
-                        partido=partido,
-                        defaults={'votos': value}
-                    )
-            return HttpResponse("¡Votos registrados exitosamente!")
-    else:
-        form = VotosForm()
-    return render(request, 'registrar_votos.html', {'form': form})
+
+class RegistrarVotosView(FormView):
+    template_name = 'registrar_votos.html'
+    form_class = VotosForm
+    success_url = reverse_lazy('votos_exito')  # Cambia 'votos_exito' por el nombre de tu URL.
+
+    def form_valid(self, form):
+        eleccion = form.cleaned_data['eleccion']
+        for field_name, value in form.cleaned_data.items():
+            if field_name.startswith('votos_'):
+                partido_id = int(field_name.split('_')[1])
+                partido = Partidos.objects.get(id=partido_id)
+                # Guardar votos en la base de datos
+                Votos.objects.update_or_create(
+                    eleccion=eleccion,
+                    partido=partido,
+                    defaults={'votos': value}
+                )
+        return super().form_valid(form)
 
 
 
@@ -448,8 +448,18 @@ def registrar_votos(request):
 </html>
 
 
+
 ```
 
+```
+from django.urls import path
+from .views import RegistrarVotosView
+
+urlpatterns = [
+    path('registrar-votos/', RegistrarVotosView.as_view(), name='registrar_votos'),
+    path('exito/', TemplateView.as_view(template_name="exito.html"), name='votos_exito'),
+]
+```
 
 
 
