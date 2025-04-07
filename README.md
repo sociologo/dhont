@@ -365,7 +365,39 @@ Superuser created successfully.
 ```
 La clave es: 123456
 
-# El desarrollo
+# La lógica del negocio.
+
+http://127.0.0.1:8000/seleccionar-eleccion/
+
+```
+app_name = "votos_app"
+   path('seleccionar-eleccion/', 
+   views.SeleccionarEleccionView.as_view(),
+   ),
+```
+
+```
+class SeleccionarEleccionView(FormView):
+    template_name = 'votos/seleccionar_eleccion.html'
+    form_class = SeleccionarEleccionForm
+
+    def form_valid(self, form):
+        eleccion = form.cleaned_data['eleccion']
+        return redirect(reverse('votos_app:partidos_por_eleccion') + f'?eleccion={eleccion.id}')
+```
+
+```
+class SeleccionarEleccionForm(forms.Form):
+    eleccion = forms.ModelChoiceField(
+        queryset=Elecciones.objects.all(),
+        label="Selecciona una elección",
+        required=True
+    )
+```
+
+
+
+
 
 1 Queremos una vista que nos permita ingresar datos a 3 tablas distintas simultáneamente. Por ello necesitaremos La clase Form y la vista FormView.
 
