@@ -7,7 +7,7 @@
 2 Creamos el entorno:
 
 ```
-C:\>cd mis_entornos
+C:\> cd mis_entornos
 C:\mis_entornos> python -m venv entorno_4
 C:\mis_entornos> cd entorno_4/Scripts
 C:\mis_entornos\entorno_4\Scripts> activate
@@ -19,7 +19,7 @@ C:\mis_entornos\entorno_4\Scripts> activate
 3 Instalamos las dependencias en tal entorno:
 
 ```
-C:\>cd mis_entornos/entorno_4/Scripts
+C:\> cd mis_entornos/entorno_4/Scripts
 C:\mis_entornos\entorno_4\Scripts> activate
 (entorno_4) C:\mis_entornos\entorno_4\Scripts> pip install django
 (entorno_4) C:\mis_entornos\entorno_4\Scripts> python.exe -m pip install --upgrade pip
@@ -42,8 +42,8 @@ y se crea la carpeta contenedora `dhont` en la carpeta `mis_proyectos`
 5 Verificamos:
 
 ```
-(entorno_4) C:\mis_proyectos>  cd dhont
-(entorno_4) C:\mis_proyectos\dhont>python manage.py runserver
+(entorno_4) C:\mis_proyectos> cd dhont
+(entorno_4) C:\mis_proyectos\dhont> python manage.py runserver
 ```
 
 6 Creamos la carpeta `applications` a la altura de manage.py
