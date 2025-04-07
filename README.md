@@ -1,5 +1,14 @@
 # dhont
 
+```
+C:\Users\chris> cd \
+C:\> cd mis_entornos/entorno_4/Scripts
+C:\mis_entornos\entorno_4\Scripts> activate
+C:\mis_entornos\entorno_4\Scripts>  cd \
+C:\> cd \GitHub\dhont\dhont
+C:\GitHub\dhont\dhont> python manage.py runserver
+```
+
 ![image](https://github.com/user-attachments/assets/97367d9c-902a-40c6-8163-b7e1711a407a)
 
 1 Creamos la carpeta `C:\mis_entornos\entorno_4`:
