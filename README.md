@@ -1,6 +1,6 @@
 # dhont
 
-## Script de arranque:
+# Script de arranque:
 
 ```
 C:\Users\chris> cd \
@@ -10,6 +10,8 @@ C:\mis_entornos\entorno_4\Scripts>  cd \
 C:\> cd \GitHub\dhont\dhont
 C:\GitHub\dhont\dhont> python manage.py runserver
 ```
+
+# La estructura básica del proyecto
 
 ![image](https://github.com/user-attachments/assets/97367d9c-902a-40c6-8163-b7e1711a407a)
 
@@ -362,6 +364,107 @@ Bypass password validation and create user anyway? [y/N]: y
 Superuser created successfully.
 ```
 La clave es: 123456
+
+# El desarrollo
+
+1 Queremos una vista que nos permita ingresar datos a 3 tablas distintas simultáneamente. Por ello necesitaremos La clase Form y la vista FormView.
+
+2 Deseamos que las tablas Partidos y Elecciones ya contengan data. Lo que deseamos es que al ingresar Votos se generen los resultados de Escaños.
+
+tengo 4 partidos politicos en la base de datos y quiero que el usuario les asigne a cada uno un determinado numero de votos. quiero que en el formulario se despliegue cada partido y una casilla donde el usuario pueda ingresar este numero.
+
+**forms.py**
+
+ya tengo este modelo:
+
+```
+from django.db import models
+
+class Partidos(models.Model):
+   nombre = models.CharField("Nombre", max_length=50)
+   siglas = models.CharField("Nombre", max_length=50)
+
+   def __str__(self):
+      return self.nombre + "-" + self.siglas
+```
+
+
+
+```
+from django import forms
+from .models import Partidos
+
+class VotosForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(VotosForm, self).__init__(*args, **kwargs)
+        partidos = Partidos.objects.all()
+        for partido in partidos:
+            self.fields[f'votos_{partido.id}'] = forms.IntegerField(
+                label=f"{partido.nombre} ({partido.siglas})",
+                min_value=0,
+                required=True
+            )
+
+
+```
+
+```
+from django.shortcuts import render
+from django.http import HttpResponse
+from .forms import VotosForm
+from .models import Partidos
+
+def asignar_votos(request):
+    if request.method == 'POST':
+        form = VotosForm(request.POST)
+        if form.is_valid():
+            resultados = []
+            for field_name, value in form.cleaned_data.items():
+                partido_id = field_name.split('_')[1]
+                partido = Partidos.objects.get(id=partido_id)
+                resultados.append(f"{partido}: {value} votos")
+            return HttpResponse('<br>'.join(resultados))
+    else:
+        form = VotosForm()
+    return render(request, 'asignar_votos.html', {'form': form})
+
+
+```
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asignar Votos</title>
+</head>
+<body>
+    <h1>Asignar Votos a los Partidos</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar Votos</button>
+    </form>
+</body>
+</html>
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
