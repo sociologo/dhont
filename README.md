@@ -1,5 +1,18 @@
 # dhont
 
+# Script de arranque:
+
+```
+C:\Users\chris> cd \
+C:\> cd mis_entornos/entorno_4/Scripts
+C:\mis_entornos\entorno_4\Scripts> activate
+C:\mis_entornos\entorno_4\Scripts>  cd \
+C:\> cd \GitHub\dhont\dhont
+C:\GitHub\dhont\dhont> python manage.py runserver
+```
+
+# La estructura básica del proyecto
+
 ![image](https://github.com/user-attachments/assets/97367d9c-902a-40c6-8163-b7e1711a407a)
 
 1 Creamos la carpeta `C:\mis_entornos\entorno_4`:
@@ -351,6 +364,150 @@ Bypass password validation and create user anyway? [y/N]: y
 Superuser created successfully.
 ```
 La clave es: 123456
+
+# La lógica del negocio.
+
+http://127.0.0.1:8000/seleccionar-eleccion/
+
+```
+app_name = "votos_app"
+   path('seleccionar-eleccion/', 
+   views.SeleccionarEleccionView.as_view(),
+   ),
+```
+
+```
+class SeleccionarEleccionView(FormView):
+    template_name = 'votos/seleccionar_eleccion.html'
+    form_class = SeleccionarEleccionForm
+
+    def form_valid(self, form):
+        eleccion = form.cleaned_data['eleccion']
+        return redirect(reverse('votos_app:partidos_por_eleccion') + f'?eleccion={eleccion.id}')
+```
+
+```
+class SeleccionarEleccionForm(forms.Form):
+    eleccion = forms.ModelChoiceField(
+        queryset=Elecciones.objects.all(),
+        label="Selecciona una elección",
+        required=True
+    )
+```
+
+
+
+
+
+1 Queremos una vista que nos permita ingresar datos a 3 tablas distintas simultáneamente. Por ello necesitaremos La clase Form y la vista FormView.
+
+2 Deseamos que las tablas Partidos y Elecciones ya contengan data. Lo que deseamos es que al ingresar Votos se generen los resultados de Escaños.
+
+tengo 4 partidos politicos en la base de datos y quiero que el usuario les asigne a cada uno un determinado numero de votos. quiero que en el formulario se despliegue cada partido y una casilla donde el usuario pueda ingresar este numero.
+
+**forms.py**
+
+
+```
+from django import forms
+from applications.partidos.models import Partidos
+from applications.elecciones.models import Elecciones
+
+class VotosForm(forms.Form):
+    eleccion = forms.ModelChoiceField(
+        queryset=Elecciones.objects.all(),
+        label="Elección",
+        required=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        partidos = Partidos.objects.all()
+        for partido in partidos:
+            self.fields[f'votos_{partido.id}'] = forms.IntegerField(
+                label=f"{partido.nombre} ({partido.siglas})",
+                min_value=0,
+                required=True
+            )
+```
+
+```
+from django.views.generic.edit import FormView
+from django.urls import reverse_lazy
+from applications.partidos.models import Partidos
+from applications.elecciones.models import Elecciones
+from applications.votos.models import Votos
+from .forms import VotosForm
+
+
+class RegistrarVotosView(FormView):
+    template_name = 'registrar_votos.html'
+    form_class = VotosForm
+    success_url = reverse_lazy('votos_exito')  # Cambia 'votos_exito' por el nombre de tu URL.
+
+    def form_valid(self, form):
+        eleccion = form.cleaned_data['eleccion']
+        for field_name, value in form.cleaned_data.items():
+            if field_name.startswith('votos_'):
+                partido_id = int(field_name.split('_')[1])
+                partido = Partidos.objects.get(id=partido_id)
+                # Guardar votos en la base de datos
+                Votos.objects.update_or_create(
+                    eleccion=eleccion,
+                    partido=partido,
+                    defaults={'votos': value}
+                )
+        return super().form_valid(form)
+
+
+
+```
+
+```
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registrar Votos</title>
+</head>
+<body>
+    <h1>Registrar Votos por Partido</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar Votos</button>
+    </form>
+</body>
+</html>
+
+
+
+```
+
+```
+from django.urls import path
+from .views import RegistrarVotosView
+
+urlpatterns = [
+    path('registrar-votos/', RegistrarVotosView.as_view(), name='registrar_votos'),
+    path('exito/', TemplateView.as_view(template_name="exito.html"), name='votos_exito'),
+]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
