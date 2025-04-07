@@ -1,5 +1,7 @@
 # dhont
 
+## Script de arranque:
+
 ```
 C:\Users\chris> cd \
 C:\> cd mis_entornos/entorno_4/Scripts
