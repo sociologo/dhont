@@ -11,6 +11,12 @@ C:\> cd \GitHub\dhont\dhont
 C:\GitHub\dhont\dhont> python manage.py runserver
 ```
 
+```
+(entorno_4) C:\GitHub\dhont\dhont>git branch
+  main
+* rama-1
+```
+
 # La estructura básica del proyecto
 
 ![image](https://github.com/user-attachments/assets/97367d9c-902a-40c6-8163-b7e1711a407a)
