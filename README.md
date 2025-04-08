@@ -449,7 +449,61 @@ class PartidosPorEleccionView(FormView):
 ```
 
 
-Este código implementa una vista basada en formularios llamada PartidosPorEleccionView, que gestiona un flujo relacionado con elecciones y votos por partidos. La vista utiliza template_name para definir la plantilla HTML a usar, form_class para especificar la clase del formulario, y success_url para redirigir tras el envío exitoso del formulario. En el método get_form_kwargs, se extrae el parámetro eleccion de la solicitud GET, se busca el objeto correspondiente en la base de datos y se filtran los partidos relacionados con esta elección; estos partidos se pasan al formulario dinámicamente. El método get_context_data añade el objeto eleccion al contexto de la plantilla, facilitando su uso en la interfaz. Por último, form_valid procesa los datos del formulario, identifica campos que comienzan con "votos_" como campos dinámicos de entrada, asocia cada campo con el partido correspondiente usando su ID, y actualiza o crea registros en la base de datos mediante el modelo Votos. Luego, redirige al usuario a la URL de éxito configurada. Es una implementación que combina lógica de negocio, dinámica de formulario y persistencia de datos de forma eficiente.
+Este código implementa una vista basada en formularios llamada PartidosPorEleccionView, que gestiona un flujo relacionado con elecciones y votos por partidos. La vista utiliza template_name para definir la plantilla HTML a usar, form_class para especificar la clase del formulario, y success_url para redirigir tras el envío exitoso del formulario. 
+
+***
+
+**El método get_form_kwargs**
+
+```
+   def get_form_kwargs(self):
+      kwargs = super().get_form_kwargs()
+      eleccion_id = self.request.GET.get('eleccion')  # Obtener la elección desde los parámetros GET
+      eleccion = get_object_or_404(Elecciones, id=eleccion_id)
+      partidos = Partidos.objects.filter(votos__eleccion=eleccion).distinct()
+      kwargs['partidos'] = partidos  # Pasar los partidos al formulario dinámico
+      self.eleccion = eleccion  # Guardar elección para usar en el contexto
+      return kwargs
+```
+
+En el método get_form_kwargs, se extrae el parámetro eleccion de la solicitud GET, se busca el objeto correspondiente en la base de datos y se filtran los partidos relacionados con esta elección; estos partidos se pasan al formulario dinámicamente. Este método get_form_kwargs es una sobrescritura del método base proporcionado por la clase FormView. Su propósito es añadir datos adicionales al diccionario de argumentos (kwargs) que se pasa al formulario al crearlo. 
+
+Llamada al método base:
+
+kwargs = super().get_form_kwargs() llama al método original de la clase padre para obtener los argumentos predeterminados necesarios para inicializar el formulario. Esto garantiza que los argumentos existentes no se pierdan y se puedan extender.
+
+Obtener el parámetro eleccion de la solicitud:
+
+eleccion_id = self.request.GET.get('eleccion') busca en los parámetros GET de la solicitud HTTP el valor asociado a la clave eleccion. Este valor probablemente fue pasado como parte de la URL o una consulta.
+
+Validación del identificador y obtención del objeto Elecciones:
+
+eleccion = get_object_or_404(Elecciones, id=eleccion_id) verifica si existe un objeto en el modelo Elecciones con el ID proporcionado. Si no se encuentra, genera un error 404. Este paso asegura que el programa no falle por tratar de usar un objeto inexistente.
+
+Filtrar partidos relacionados con la elección:
+
+partidos = Partidos.objects.filter(votos__eleccion=eleccion).distinct() realiza una consulta en la base de datos para obtener los partidos asociados a la elección específica. Aquí, votos__eleccion establece una relación entre el modelo Partidos y el modelo Votos a través de la elección. El uso de distinct() garantiza que no se repitan resultados.
+
+Añadir los partidos al diccionario kwargs:
+
+kwargs['partidos'] = partidos añade la lista de partidos al diccionario de argumentos. Este dato será utilizado para configurar un formulario dinámico, donde la lista de partidos probablemente se mostrará como opciones.
+
+Almacenar el objeto eleccion en el atributo de instancia:
+
+self.eleccion = eleccion guarda el objeto Elecciones en un atributo de la instancia de la clase, lo cual permite que otros métodos de la vista accedan a este objeto más adelante, como en el contexto o en la lógica del formulario.
+
+Devolver el diccionario actualizado:
+
+return kwargs devuelve el diccionario completo, incluyendo tanto los datos originales obtenidos del método padre como los nuevos datos añadidos (los partidos).
+
+***
+
+
+
+
+El método get_context_data añade el objeto eleccion al contexto de la plantilla, facilitando su uso en la interfaz. 
+
+Por último, form_valid procesa los datos del formulario, identifica campos que comienzan con "votos_" como campos dinámicos de entrada, asocia cada campo con el partido correspondiente usando su ID, y actualiza o crea registros en la base de datos mediante el modelo Votos. Luego, redirige al usuario a la URL de éxito configurada. Es una implementación que combina lógica de negocio, dinámica de formulario y persistencia de datos de forma eficiente.
 
 
 
@@ -472,135 +526,6 @@ Este código implementa una vista basada en formularios llamada PartidosPorElecc
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-class SeleccionarEleccionView(FormView):
-    template_name = 'votos/seleccionar_eleccion.html'
-    form_class = SeleccionarEleccionForm
-
-    def form_valid(self, form):
-        eleccion = form.cleaned_data['eleccion']
-        return redirect(reverse('votos_app:partidos_por_eleccion') + f'?eleccion={eleccion.id}')
-```
-
-```
-class SeleccionarEleccionForm(forms.Form):
-    eleccion = forms.ModelChoiceField(
-        queryset=Elecciones.objects.all(),
-        label="Selecciona una elección",
-        required=True
-    )
-```
-
-
-
-
-
-1 Queremos una vista que nos permita ingresar datos a 3 tablas distintas simultáneamente. Por ello necesitaremos La clase Form y la vista FormView.
-
-2 Deseamos que las tablas Partidos y Elecciones ya contengan data. Lo que deseamos es que al ingresar Votos se generen los resultados de Escaños.
-
-tengo 4 partidos politicos en la base de datos y quiero que el usuario les asigne a cada uno un determinado numero de votos. quiero que en el formulario se despliegue cada partido y una casilla donde el usuario pueda ingresar este numero.
-
-**forms.py**
-
-
-```
-from django import forms
-from applications.partidos.models import Partidos
-from applications.elecciones.models import Elecciones
-
-class VotosForm(forms.Form):
-    eleccion = forms.ModelChoiceField(
-        queryset=Elecciones.objects.all(),
-        label="Elección",
-        required=True
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        partidos = Partidos.objects.all()
-        for partido in partidos:
-            self.fields[f'votos_{partido.id}'] = forms.IntegerField(
-                label=f"{partido.nombre} ({partido.siglas})",
-                min_value=0,
-                required=True
-            )
-```
-
-```
-from django.views.generic.edit import FormView
-from django.urls import reverse_lazy
-from applications.partidos.models import Partidos
-from applications.elecciones.models import Elecciones
-from applications.votos.models import Votos
-from .forms import VotosForm
-
-
-class RegistrarVotosView(FormView):
-    template_name = 'registrar_votos.html'
-    form_class = VotosForm
-    success_url = reverse_lazy('votos_exito')  # Cambia 'votos_exito' por el nombre de tu URL.
-
-    def form_valid(self, form):
-        eleccion = form.cleaned_data['eleccion']
-        for field_name, value in form.cleaned_data.items():
-            if field_name.startswith('votos_'):
-                partido_id = int(field_name.split('_')[1])
-                partido = Partidos.objects.get(id=partido_id)
-                # Guardar votos en la base de datos
-                Votos.objects.update_or_create(
-                    eleccion=eleccion,
-                    partido=partido,
-                    defaults={'votos': value}
-                )
-        return super().form_valid(form)
-
-
-
-```
-
-```
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Registrar Votos</title>
-</head>
-<body>
-    <h1>Registrar Votos por Partido</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Guardar Votos</button>
-    </form>
-</body>
-</html>
-
-
-
-```
-
-```
-from django.urls import path
-from .views import RegistrarVotosView
-
-urlpatterns = [
-    path('registrar-votos/', RegistrarVotosView.as_view(), name='registrar_votos'),
-    path('exito/', TemplateView.as_view(template_name="exito.html"), name='votos_exito'),
-]
-```
 
 
 
