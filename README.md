@@ -373,7 +373,7 @@ La clave es: 123456
 
 # La lógica del negocio.
 
-http://127.0.0.1:8000/seleccionar-eleccion/
+1 La url http://127.0.0.1:8000/seleccionar-eleccion/
 
 ```
 app_name = "votos_app"
@@ -381,6 +381,45 @@ app_name = "votos_app"
    views.SeleccionarEleccionView.as_view(),
    ),
 ```
+
+despliega un filtro de partidos por elección.
+
+![image](https://github.com/user-attachments/assets/e58a29b9-07ba-49cd-bc5d-efb5c76d752a)
+
+```
+class SeleccionarEleccionView(FormView):
+    template_name = 'votos/seleccionar_eleccion.html'
+    form_class = SeleccionarEleccionForm
+
+    def form_valid(self, form):
+        eleccion = form.cleaned_data['eleccion']
+        # Redirigir al listado de partidos con la elección seleccionada como parámetro
+        return redirect(reverse('votos_app:partidos_por_eleccion') + f'?eleccion={eleccion.id}')
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```
 class SeleccionarEleccionView(FormView):
