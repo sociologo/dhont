@@ -448,9 +448,9 @@ class PartidosPorEleccionView(FormView):
 
 ```
 
-```
+
 Este código implementa una vista basada en formularios llamada PartidosPorEleccionView, que gestiona un flujo relacionado con elecciones y votos por partidos. La vista utiliza template_name para definir la plantilla HTML a usar, form_class para especificar la clase del formulario, y success_url para redirigir tras el envío exitoso del formulario. En el método get_form_kwargs, se extrae el parámetro eleccion de la solicitud GET, se busca el objeto correspondiente en la base de datos y se filtran los partidos relacionados con esta elección; estos partidos se pasan al formulario dinámicamente. El método get_context_data añade el objeto eleccion al contexto de la plantilla, facilitando su uso en la interfaz. Por último, form_valid procesa los datos del formulario, identifica campos que comienzan con "votos_" como campos dinámicos de entrada, asocia cada campo con el partido correspondiente usando su ID, y actualiza o crea registros en la base de datos mediante el modelo Votos. Luego, redirige al usuario a la URL de éxito configurada. Es una implementación que combina lógica de negocio, dinámica de formulario y persistencia de datos de forma eficiente.
-```
+
 
 
 
