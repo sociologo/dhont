@@ -376,15 +376,17 @@ La clave es: 123456
 1 La url http://127.0.0.1:8000/seleccionar-eleccion/
 
 ```
-app_name = "votos_app"
+urlpatterns = [
    path('seleccionar-eleccion/', 
-   views.SeleccionarEleccionView.as_view(),
-   ),
+   views.SeleccionarEleccionView.as_view(),)
+]
 ```
 
 despliega un filtro de partidos por elección.
 
 ![image](https://github.com/user-attachments/assets/e58a29b9-07ba-49cd-bc5d-efb5c76d752a)
+
+2 **SeleccionarEleccionView**
 
 ```
 class SeleccionarEleccionView(FormView):
@@ -393,16 +395,78 @@ class SeleccionarEleccionView(FormView):
 
     def form_valid(self, form):
         eleccion = form.cleaned_data['eleccion']
-        # Redirigir al listado de partidos con la elección seleccionada como parámetro
         return redirect(reverse('votos_app:partidos_por_eleccion') + f'?eleccion={eleccion.id}')
+```
 
+Este código define una vista basada en clases llamada `SeleccionarEleccionView` que hereda de `FormView`, lo que significa que su propósito principal es manejar formularios. El atributo `template_name` especifica la plantilla HTML que se usará para renderizar la página asociada a esta vista, mientras que `form_class` apunta al formulario que esta vista utilizará, en este caso, `SeleccionarEleccionForm`. En el método `form_valid`, que se ejecuta cuando el formulario enviado es válido, se recupera el dato **eleccion** del formulario validado a través de `form.cleaned_data`. Luego, la vista redirige al usuario a una nueva URL generada dinámicamente utilizando reverse para **construir la ruta** a la vista llamada partidos_por_eleccion dentro de la aplicación votos_app. Se añade un parámetro de consulta (?eleccion=eleccion.id) para incluir el identificador de la elección seleccionada en la URL resultante, permitiendo que la siguiente vista acceda a este dato para procesarlo o mostrarlo según sea necesario.
+
+
+```
+app_name = "votos_app"
+urlpatterns = [
+      path('partidos/', 
+      views.PartidosPorEleccionView.as_view(), 
+      name='partidos_por_eleccion'),
+]
+```
+
+```python
+
+class PartidosPorEleccionView(FormView):
+
+   template_name = 'votos/partidos_por_eleccion.html'
+   form_class = VotosPorPartidoForm
+   success_url = reverse_lazy('votos_app:exito')
+
+   def get_form_kwargs(self):
+      kwargs = super().get_form_kwargs()
+      eleccion_id = self.request.GET.get('eleccion')  # Obtener la elección desde los parámetros GET
+      eleccion = get_object_or_404(Elecciones, id=eleccion_id)
+      partidos = Partidos.objects.filter(votos__eleccion=eleccion).distinct()
+      kwargs['partidos'] = partidos  # Pasar los partidos al formulario dinámico
+      self.eleccion = eleccion  # Guardar elección para usar en el contexto
+      return kwargs
+
+   def get_context_data(self, **kwargs):
+      context = super().get_context_data(**kwargs)
+      context['eleccion'] = self.eleccion  # Pasa la elección al contexto
+      return context
+
+
+   def form_valid(self, form):
+      for field_name, value in form.cleaned_data.items():
+            if field_name.startswith('votos_'):  # Identificar los campos dinámicos
+               partido_id = int(field_name.split('_')[1])
+               partido = get_object_or_404(Partidos, id=partido_id)
+               # Crear o actualizar los votos en la base de datos
+               Votos.objects.update_or_create(
+                  partido=partido,
+                  eleccion=self.eleccion,
+                  defaults={'votos': value}
+               )
+      return super().form_valid(form)  # Redirigir al listado o página de confirmación
+
+```
+
+```
+Este código implementa una vista basada en formularios llamada PartidosPorEleccionView, que gestiona un flujo relacionado con elecciones y votos por partidos. La vista utiliza template_name para definir la plantilla HTML a usar, form_class para especificar la clase del formulario, y success_url para redirigir tras el envío exitoso del formulario. En el método get_form_kwargs, se extrae el parámetro eleccion de la solicitud GET, se busca el objeto correspondiente en la base de datos y se filtran los partidos relacionados con esta elección; estos partidos se pasan al formulario dinámicamente. El método get_context_data añade el objeto eleccion al contexto de la plantilla, facilitando su uso en la interfaz. Por último, form_valid procesa los datos del formulario, identifica campos que comienzan con "votos_" como campos dinámicos de entrada, asocia cada campo con el partido correspondiente usando su ID, y actualiza o crea registros en la base de datos mediante el modelo Votos. Luego, redirige al usuario a la URL de éxito configurada. Es una implementación que combina lógica de negocio, dinámica de formulario y persistencia de datos de forma eficiente.
 ```
 
 
 
+***
+***
+<br>
+<br>
+<br>
+<br>
 
-
-
+<br>
+<br>
+<br>
+<br>
+***
+***
 
 
 
