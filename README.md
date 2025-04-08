@@ -6,13 +6,13 @@
 C:\Users\chris> cd \
 C:\> cd mis_entornos/entorno_4/Scripts
 C:\mis_entornos\entorno_4\Scripts> activate
-C:\mis_entornos\entorno_4\Scripts>  cd \
+C:\mis_entornos\entorno_4\Scripts> cd \
 C:\> cd \GitHub\dhont\dhont
 C:\GitHub\dhont\dhont> python manage.py runserver
 ```
 
 ```
-(entorno_4) C:\GitHub\dhont\dhont>git branch
+(entorno_4) C:\GitHub\dhont\dhont> git branch
   main
 * rama-1
 ```
