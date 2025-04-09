@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asignación de Escaños</title>
+</head>
+<body>
+    <h1>Asignación de Escaños</h1>
+
+    {% if escanos %}
+        <h2>Resultados:</h2>
+        <ul>
+            {% for escano in escanos %}
+                <li>{{ escano.partido.nombre }}: {{ escano.escanos }} escaños</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay datos de escaños asignados para esta elección.</p>
+    {% endif %}
+</body>
+</html>
+
+

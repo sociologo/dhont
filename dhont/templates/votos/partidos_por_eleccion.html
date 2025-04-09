@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Partidos en la Elección: {{ eleccion.nombre }} - {{ eleccion.fecha|date:"d/m/Y" }}</h1>
-    <form method="post">
+    <form method="post" action="{% url 'votos_app:partidos_por_eleccion' %}?eleccion={{ eleccion.id }}" >
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Guardar Votos</button>
