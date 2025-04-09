@@ -7,11 +7,11 @@ class SeleccionarEleccionForm(forms.Form):
       label="Selecciona una elección",
       required=True
    )
-   escanos_totales = forms.IntegerField(
+"""    escanos_totales = forms.IntegerField(
       label="Número total de escaños",
       min_value=1,
       required=True,  # Obligatorio para garantizar que se ingrese un valor
-   )
+   ) """
 
 class VotosPorPartidoForm(forms.Form):
    def __init__(self, *args, **kwargs):
@@ -23,3 +23,9 @@ class VotosPorPartidoForm(forms.Form):
                min_value=0,
                required=False  # Permitir campos vacíos si no se ingresan votos
    )
+   # Campo adicional para el número total de escaños
+      self.fields['escanos_totales'] = forms.IntegerField(
+         label="Número total de escaños",
+         min_value=1,
+         required=True  # Obligatorio para garantizar que se ingrese un valor
+      )

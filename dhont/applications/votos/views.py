@@ -20,13 +20,12 @@ class SeleccionarEleccionView(FormView):
     form_class = SeleccionarEleccionForm
 
     def form_valid(self, form):
+        # Capturar solo el valor de 'eleccion' desde los datos del formulario
         eleccion = form.cleaned_data['eleccion']
-        escanos_totales = form.cleaned_data['escanos_totales']  # Capturar el valor de escaños
         print(f"Elección seleccionada: {eleccion.nombre}")  # Depuración
-        print(f"Escaños totales: {escanos_totales}")  # Depuración
 
         # Redirigir al listado de partidos con la elección seleccionada como parámetro
-        return redirect(reverse('votos_app:partidos_por_eleccion') + f'?eleccion={eleccion.id}&escanos_totales={escanos_totales}')
+        return redirect(reverse('votos_app:partidos_por_eleccion') + f'?eleccion={eleccion.id}')
 
 class PartidosPorEleccionView(FormView):
    
@@ -45,13 +44,16 @@ class PartidosPorEleccionView(FormView):
       self.eleccion = eleccion  # Guarda elección para el contexto
       return kwargs
 
-
    def get_context_data(self, **kwargs):
       context = super().get_context_data(**kwargs)
       context['eleccion'] = self.eleccion  # Pasa la elección al contexto
       return context
 
    def form_valid(self, form):
+      print("Iniciando procesamiento de votos", flush=True)
+      # Capturar el número de escaños desde el formulario
+      escanos_totales = form.cleaned_data['escanos_totales']
+      print(f"Escaños totales a repartir: {escanos_totales}", flush=True)
       for field_name, value in form.cleaned_data.items():
             if field_name.startswith('votos_'):  # Identificar los campos dinámicos
                partido_id = int(field_name.split('_')[1])
@@ -62,55 +64,107 @@ class PartidosPorEleccionView(FormView):
                   eleccion=self.eleccion,
                   defaults={'votos': value}
                )
+               # Mostrar en consola los votos asignados
+               print(f"Partido: {partido.nombre}, Votos asignados: {value}")
       # return super().form_valid(form)  # Redirigir al listado o página de confirmación
+      
+      
+
+      # Llamar al cálculo de escaños
+      self.calcular_escanos(self.eleccion, escanos_totales)
+
+
+
       return redirect(reverse('votos_app:resultados_por_eleccion') + f'?eleccion={self.eleccion.id}')
 
 
 
+   def calcular_escanos(self, eleccion, escanos_totales):
+      # Calcular votos totales por partido
+      votos_partidos = {
+         partido: Votos.objects.filter(eleccion=eleccion, partido=partido).aggregate(
+               total=Sum('votos')
+         )['total'] or 0
+         for partido in Partidos.objects.all()
+      }
+
+      # Aplicar el método D'Hondt
+      asignaciones = {partido: 0 for partido in votos_partidos}
+      divisores = {
+         partido: [votos // divisor for divisor in range(1, escanos_totales + 1)]
+         for partido, votos in votos_partidos.items()
+      }
+
+      for _ in range(escanos_totales):
+         partido_max = max(divisores.keys(), key=lambda p: divisores[p][0])
+         asignaciones[partido_max] += 1
+         divisores[partido_max].pop(0)
+
+      # Guardar los resultados en la base de datos
+      for partido, escanos in asignaciones.items():
+         Escanos.objects.update_or_create(
+               eleccion=eleccion,
+               partido=partido,
+               defaults={'escanos': escanos}
+         )
+
+
+
+
+
+
+
+
+
+
 class CalcularEscanosView(View):
-    template_name = 'votos/calcular_escanos.html'
 
-    def post(self, request, *args, **kwargs):
-        form = SeleccionarEleccionForm(request.POST)
+   def post(self, request, *args, **kwargs):
+      form = SeleccionarEleccionForm(request.POST)
 
-        if form.is_valid():
-            eleccion = form.cleaned_data['eleccion']
-            escanos_totales = form.cleaned_data['escanos_totales']
+      if form.is_valid():
+         eleccion = form.cleaned_data['eleccion']
+         escanos_totales = form.cleaned_data['escanos_totales']
 
-            # Calcular votos totales por partido
-            votos_partidos = {
-                partido: Votos.objects.filter(eleccion=eleccion, partido=partido).aggregate(
-                    total=Sum('votos')
-                )['total'] or 0
-                for partido in Partidos.objects.all()
-            }
+         # Calcular votos totales por partido
+         votos_partidos = {
+               partido: Votos.objects.filter(eleccion=eleccion, partido=partido).aggregate(
+                  total=Sum('votos')
+               )['total'] or 0
+               for partido in Partidos.objects.all()
+         }
 
-            # Aplicar el método D'Hondt
-            asignaciones = {partido: 0 for partido in votos_partidos}
-            divisores = {
-                partido: [votos // divisor for divisor in range(1, escanos_totales + 1)]
-                for partido, votos in votos_partidos.items()
-            }
+         # Aplicar el método D'Hondt
+         asignaciones = {partido: 0 for partido in votos_partidos}
+         divisores = {
+               partido: [votos // divisor for divisor in range(1, escanos_totales + 1)]
+               for partido, votos in votos_partidos.items()
+         }
 
-            for _ in range(escanos_totales):
-                partido_max = max(divisores.keys(), key=lambda p: divisores[p][0])
-                asignaciones[partido_max] += 1
-                divisores[partido_max].pop(0)
+         for _ in range(escanos_totales):
+               partido_max = max(divisores.keys(), key=lambda p: divisores[p][0])
+               asignaciones[partido_max] += 1
+               divisores[partido_max].pop(0)
 
-            # Guardar resultados en la base de datos
-            for partido, escanos in asignaciones.items():
-                Escanos.objects.update_or_create(
-                    eleccion=eleccion,
-                    partido=partido,
-                    defaults={'escanos': escanos}
-                )
+         # Guardar resultados en la base de datos
+         for partido, escanos in asignaciones.items():
+               Escanos.objects.update_or_create(
+                  eleccion=eleccion,
+                  partido=partido,
+                  defaults={'escanos': escanos}
+               )
 
-            # Redirigir a resultados
-            return redirect(reverse('resultados_por_eleccion') + f'?eleccion={eleccion.id}')
+         # Redirigir a resultados
+         return redirect(reverse('resultados_por_eleccion') + f'?eleccion={eleccion.id}')
 
-        # Si el formulario no es válido, renderizar con errores
-        return render(request, self.template_name, {'form': form})
-    
+      # Si el formulario no es válido, renderizar con errores
+      return render(request, self.template_name, {'form': form})
+   
+
+
+
+
+
 class AsignarEscanosView(ListView):
    model = Escanos
    template_name = 'votos/asignar_escanos.html'
